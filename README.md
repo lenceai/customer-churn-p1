@@ -1,66 +1,63 @@
-# customer-churn-p1
-Udacity ML DevOps Project 1
-
-# Customer Churn Prediction Project
+# Credit Card Customer Churn Prediction
 
 ## Project Overview
-This project implements a machine learning solution to predict customer churn for a bank. It uses a dataset of credit card customers to identify those most likely to churn, helping the bank take proactive retention measures.
+This project implements a machine learning solution to predict customer churn for credit card services. It uses supervised learning to identify customers most likely to churn, helping financial institutions take proactive retention measures.
 
-The project follows software engineering best practices including:
-- Modular, object-oriented design
-- PEP 8 coding standards
-- Comprehensive testing
-- Proper logging
-- Clear documentation
+## Project Features
+- Data preprocessing and exploratory data analysis (EDA)
+- Feature engineering with categorical variable encoding
+- Model training with Random Forest and Logistic Regression
+- Model evaluation with classification reports and ROC curves
+- Comprehensive logging and testing suite
+- Modular, object-oriented design following PEP 8 standards
 
-## Project Structure
+## Directory Structure
 ```
 .
-├── README.md                     # Project documentation
-├── requirements.txt              # Project dependencies
-├── constants.py                  # Project constants and configuration
-├── churn_library.py             # Main churn prediction implementation
-├── churn_script_logging_and_tests.py  # Testing suite
+├── README.md                              # Project documentation
+├── requirements.txt                       # Project dependencies
+├── constants.py                          # Configuration constants
+├── churn_library.py                      # Main implementation
+├── churn_script_logging_and_tests.py     # Testing suite
 ├── data/
-│   └── bank_data.csv            # Input dataset
+│   └── bank_data.csv                    # Input dataset
 ├── images/
-│   ├── eda/                     # Exploratory Data Analysis plots
-│   └── results/                 # Model performance plots
+│   ├── eda/                            # EDA visualizations
+│   │   ├── churn_histogram.png
+│   │   ├── customer_age_histogram.png
+│   │   ├── marital_status_counts.png
+│   │   ├── total_transaction_histogram.png
+│   │   └── heatmap.png
+│   └── results/                        # Model results
+│       ├── feature_importance.png
+│       ├── lrc_roc_curve.png
+│       ├── roc_curves.png
+│       ├── lr_classification_report.png
+│       └── rf_classification_report.png
 ├── logs/
-│   └── churn_library.log        # Logging output
-└── models/                      # Saved model files
+│   └── churn_library.log              # Execution logs
+└── models/                            # Saved model files
+    ├── rfc_model.pkl
+    └── logistic_model.pkl
 ```
 
-## Dependencies
-The project requires Python 3.8+ and the following key libraries:
-```
-scikit-learn==0.24.1
-pandas==1.2.4
-numpy==1.20.1
-matplotlib==3.3.4
-seaborn==0.11.2
-pytest==7.1.2
-pylint==2.7.4
-autopep8==1.5.6
-```
+## Installation
 
-To install all dependencies:
-```bash
-pip install -r requirements.txt
-```
+### Prerequisites
+- Python 3.8+
+- pip package manager
 
-## Installation & Setup
-
+### Setup Steps
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd customer-churn-prediction
+cd credit-card-churn
 ```
 
-2. Create and activate a virtual environment (optional but recommended):
+2. Create and activate a virtual environment:
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 3. Install dependencies:
@@ -68,114 +65,136 @@ source venv/bin/activate  # On Windows use: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Ensure the data file is in place:
-```bash
-mkdir -p data
-# Place bank_data.csv in the data directory
-```
+4. Prepare the data:
+- Place your `bank_data.csv` file in the `data/` directory
+- Ensure the data file follows the expected schema with required columns
 
 ## Usage
 
 ### Running the Churn Prediction Pipeline
-
-The main script performs the complete churn prediction pipeline:
+Execute the main script to run the complete pipeline:
 ```bash
 python churn_library.py
 ```
 
 This will:
-1. Load and prepare the data
+1. Load and preprocess the data
 2. Perform EDA and generate visualizations
 3. Engineer features
 4. Train Random Forest and Logistic Regression models
-5. Generate performance reports and plots
-6. Save trained models
+5. Generate and save performance reports
+6. Save trained models for future use
 
 ### Running Tests
-
-To run the test suite with logging:
+Execute the test suite:
 ```bash
 pytest churn_script_logging_and_tests.py -v
 ```
 
-To check code quality:
+Check code quality:
 ```bash
 pylint churn_library.py
 pylint churn_script_logging_and_tests.py
 ```
 
-To format code according to PEP 8:
+Format code:
 ```bash
 autopep8 --in-place --aggressive --aggressive churn_library.py
 autopep8 --in-place --aggressive --aggressive churn_script_logging_and_tests.py
 ```
 
-## Project Features
+## Project Components
 
-### Data Processing
-- Automated data import and validation
-- Creation of churn labels from attrition flags
-- Encoding of categorical variables
+### Data Processing (`churn_library.py`)
+The `ChurnPredictor` class implements:
+- Data import and validation
+- EDA with visualization generation
+- Categorical variable encoding
 - Feature engineering pipeline
+- Model training and evaluation
+- Results visualization and storage
 
-### EDA
-The project generates various exploratory plots including:
-- Churn distribution
-- Customer age distribution
-- Marital status analysis
-- Transaction patterns
-- Feature correlation heatmap
+### Configuration (`constants.py`)
+Contains:
+- File paths and names
+- Model parameters
+- Column definitions
+- Visualization settings
 
-### Model Training
-Implements two models:
-1. Random Forest Classifier with GridSearchCV
+### Testing (`churn_script_logging_and_tests.py`)
+Includes:
+- Unit tests for all major functions
+- Logging configuration
+- Data validation checks
+- Performance metric verification
+
+## Model Details
+
+### Features Used
+- Customer demographics (age, gender, etc.)
+- Account information (credit limit, balance, etc.)
+- Transaction history
+- Relationship metrics
+
+### Models Implemented
+1. Random Forest Classifier
+   - Optimized with GridSearchCV
+   - Feature importance analysis
+   
 2. Logistic Regression
-
-### Model Evaluation
-Generates comprehensive performance metrics:
-- Classification reports
-- ROC curves
-- Feature importance plots
-- Model comparison visualizations
+   - Baseline model for comparison
+   - ROC curve analysis
 
 ## Output Files
 
 ### EDA Visualizations
-- `images/eda/churn_histogram.png`
-- `images/eda/customer_age_histogram.png`
-- `images/eda/marital_status_counts.png`
-- `images/eda/total_transaction_histogram.png`
-- `images/eda/heatmap.png`
+- Customer age distribution
+- Churn distribution
+- Marital status analysis
+- Transaction patterns
+- Feature correlation heatmap
 
-### Results
-- `images/results/rf_classification_report.png`
-- `images/results/lr_classification_report.png`
-- `images/results/feature_importance.png`
-- `images/results/roc_curves.png`
-
-### Models
-- `models/rfc_model.pkl`
-- `models/logistic_model.pkl`
+### Model Results
+- Classification reports
+- Feature importance rankings
+- ROC curves
+- Model comparison metrics
 
 ## Logging
-The project maintains detailed logs in `logs/churn_library.log`, including:
-- Data import status
-- EDA completion
-- Model training progress
-- Error messages
-- Test results
+- Comprehensive logging in `logs/churn_library.log`
+- Tracks execution progress
+- Records errors and warnings
+- Documents model performance
 
 ## Contributing
-To contribute to this project:
 1. Fork the repository
 2. Create a feature branch
-3. Make your changes
-4. Run tests and ensure they pass
-5. Submit a pull request
+3. Implement changes with tests
+4. Submit a pull request
+
+## Code Quality Standards
+- PEP 8 compliance
+- Comprehensive docstrings
+- Unit test coverage
+- Error handling
+- Logging implementation
 
 ## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see LICENSE file for details.
 
 ## Author
-Created by Ryan Lence
+Created by: [Your Name]
 Date: December 15, 2024
+
+## Acknowledgments
+- Scikit-learn documentation and community
+- Python data science community
+- Original data providers
+
+## Support
+For issues and questions:
+1. Check existing issues on GitHub
+2. Create a new issue with:
+   - Clear description
+   - Steps to reproduce
+   - Expected vs actual behavior
