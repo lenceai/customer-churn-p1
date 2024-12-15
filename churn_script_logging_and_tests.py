@@ -138,13 +138,18 @@ def test_perform_feature_engineering(churn_predictor):
         assert churn_predictor.y_train is not None
         assert churn_predictor.y_test is not None
         
-        # Verify split sizes
+        # Verify split sizes are approximately correct
         total_rows = len(churn_predictor.df)
         expected_test_size = int(total_rows * const.TEST_SIZE)
         expected_train_size = total_rows - expected_test_size
         
-        assert len(churn_predictor.X_train) == expected_train_size
-        assert len(churn_predictor.X_test) == expected_test_size
+        # Allow for ±1 difference due to rounding
+        assert abs(len(churn_predictor.X_train) - expected_train_size) <= 1
+        assert abs(len(churn_predictor.X_test) - expected_test_size) <= 1
+        
+        # Check that splits add up to total
+        assert len(churn_predictor.X_train) + len(churn_predictor.X_test) == total_rows
+        assert len(churn_predictor.y_train) + len(churn_predictor.y_test) == total_rows
         
         logging.info("Testing perform_feature_engineering: SUCCESS")
         
