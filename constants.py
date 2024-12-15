@@ -4,7 +4,6 @@ constants.py
 This module contains all constant values used across the project for predicting customer churn.
 These constants include file paths, column names, model parameters, and other configuration values.
 
-Author: Claude
 Date: December 15, 2024
 """
 
@@ -29,9 +28,9 @@ CORRELATION_HEATMAP = "heatmap.png"
 # Results plot file names
 RFC_CLASSIFICATION_REPORT = "rf_classification_report.png"
 LR_CLASSIFICATION_REPORT = "lr_classification_report.png"
-FEATURE_IMPORTANCE_PLOT = "cv_feature_importance.png"
+FEATURE_IMPORTANCE_PLOT = "feature_importance.png"
 LRC_ROC_CURVE = "lrc_roc_curve.png"
-ROC_CURVES_COMPARISON = "lrc_rfc_roc_curves.png"
+ROC_CURVES_COMPARISON = "roc_curves.png"
 
 # Column names
 CATEGORICAL_COLUMNS = [
@@ -85,10 +84,10 @@ KEEP_COLS = [
 RANDOM_STATE = 42
 TEST_SIZE = 0.3
 
-# Random Forest parameters for GridSearchCV
+# Random Forest parameters for GridSearchCV - Updated to remove deprecated 'auto'
 RF_PARAM_GRID = {
     'n_estimators': [200, 500],
-    'max_features': ['auto', 'sqrt'],
+    'max_features': ['sqrt'],  # Changed from ['auto', 'sqrt'] to just ['sqrt']
     'max_depth': [4, 5, 100],
     'criterion': ['gini', 'entropy']
 }

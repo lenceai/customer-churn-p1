@@ -4,7 +4,6 @@ churn_script_logging_and_tests.py
 This module contains test cases for the ChurnPredictor class.
 It uses pytest for testing and includes comprehensive logging.
 
-Author: Claude
 Date: December 15, 2024
 """
 

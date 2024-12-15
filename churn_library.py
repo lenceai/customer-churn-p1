@@ -1,9 +1,9 @@
 """
 churn_library.py
 
-This module contains the ChurnPredictor class which implements the customer churn prediction pipeline.
+This module contains the ChurnPredictor class which implements the customer churn prediction pipeline
+including data loading, EDA, feature engineering, model training and evaluation.
 
-Author: Claude
 Date: December 15, 2024
 """
 
@@ -30,7 +30,12 @@ logging.basicConfig(
 )
 
 class ChurnPredictor:
-    """A class to predict customer churn using machine learning models."""
+    """
+    A class to predict customer churn using machine learning models.
+    
+    This class implements the full ML pipeline from data loading through
+    model evaluation for predicting customer churn.
+    """
 
     def __init__(self):
         """Initialize ChurnPredictor with empty attributes."""
@@ -48,7 +53,15 @@ class ChurnPredictor:
             os.makedirs(directory, exist_ok=True)
 
     def import_data(self, pth=const.DATA_PATH):
-        """Import data from csv file."""
+        """
+        Import data from csv file.
+        
+        Args:
+            pth (str): Path to the CSV file
+            
+        Returns:
+            bool: True if successful, False otherwise
+        """
         try:
             self.df = pd.read_csv(pth)
             self.df['Churn'] = self.df['Attrition_Flag'].map(
@@ -63,7 +76,12 @@ class ChurnPredictor:
             return False
 
     def perform_eda(self):
-        """Perform EDA on the data and save figures."""
+        """
+        Perform EDA on the data and save figures.
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
         try:
             # Set style
             sns.set_style("whitegrid")
@@ -121,7 +139,12 @@ class ChurnPredictor:
             return False
 
     def encoder_helper(self):
-        """Helper function to encode categorical variables."""
+        """
+        Helper function to encode categorical variables.
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
         try:
             for category in const.CATEGORICAL_COLUMNS:
                 # Calculate mean churn for each category value
@@ -138,7 +161,12 @@ class ChurnPredictor:
             return False
 
     def perform_feature_engineering(self):
-        """Perform feature engineering and split data."""
+        """
+        Perform feature engineering and split data.
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
         try:
             # Verify all necessary columns exist
             missing_cols = [col for col in const.KEEP_COLS if col not in self.df.columns]
@@ -160,7 +188,12 @@ class ChurnPredictor:
             return False
 
     def train_models(self):
-        """Train and store models."""
+        """
+        Train and store models.
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
         try:
             # Verify we have data to train on
             if self.X_train is None or self.y_train is None:
@@ -191,10 +224,109 @@ class ChurnPredictor:
             logging.error("Model training failed: %s", str(err))
             return False
 
-    # ... rest of the class remains the same ...
+    def create_model_reports(self):
+        """
+        Generate and save classification reports and feature importance plots.
+        
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            # Verify models exist
+            if self.rfc_model is None or self.lr_model is None:
+                raise ValueError("Models not trained. Run train_models first.")
+
+            # Get predictions
+            y_train_preds_rf = self.rfc_model.predict(self.X_train)
+            y_test_preds_rf = self.rfc_model.predict(self.X_test)
+            y_train_preds_lr = self.lr_model.predict(self.X_train)
+            y_test_preds_lr = self.lr_model.predict(self.X_test)
+            
+            # Random Forest Classification Report
+            plt.figure(figsize=const.CLASSIFICATION_REPORT_FIG_SIZE)
+            plt.text(0.01, 1.25, 'Random Forest Train', fontsize=10, fontproperties='monospace')
+            plt.text(0.01, 0.05, classification_report(self.y_test, y_test_preds_rf), 
+                    fontsize=10, fontproperties='monospace')
+            plt.text(0.01, 0.6, 'Random Forest Test', fontsize=10, fontproperties='monospace')
+            plt.text(0.01, 0.7, classification_report(self.y_train, y_train_preds_rf), 
+                    fontsize=10, fontproperties='monospace')
+            plt.axis('off')
+            plt.savefig(os.path.join(const.RESULTS_IMAGES_PATH, const.RFC_CLASSIFICATION_REPORT))
+            plt.close()
+            
+            # Logistic Regression Classification Report
+            plt.figure(figsize=const.CLASSIFICATION_REPORT_FIG_SIZE)
+            plt.text(0.01, 1.25, 'Logistic Regression Train', fontsize=10, fontproperties='monospace')
+            plt.text(0.01, 0.05, classification_report(self.y_train, y_train_preds_lr), 
+                    fontsize=10, fontproperties='monospace')
+            plt.text(0.01, 0.6, 'Logistic Regression Test', fontsize=10, fontproperties='monospace')
+            plt.text(0.01, 0.7, classification_report(self.y_test, y_test_preds_lr), 
+                    fontsize=10, fontproperties='monospace')
+            plt.axis('off')
+            plt.savefig(os.path.join(const.RESULTS_IMAGES_PATH, const.LR_CLASSIFICATION_REPORT))
+            plt.close()
+            
+            # Feature Importance Plot
+            plt.figure(figsize=const.FEATURE_IMPORTANCE_FIG_SIZE)
+            importances = self.rfc_model.feature_importances_
+            indices = np.argsort(importances)[::-1]
+            names = [self.X_train.columns[i] for i in indices]
+            plt.title("Feature Importance")
+            plt.ylabel('Importance')
+            plt.bar(range(self.X_train.shape[1]), importances[indices])
+            plt.xticks(range(self.X_train.shape[1]), names, rotation=90)
+            plt.tight_layout()
+            plt.savefig(os.path.join(const.RESULTS_IMAGES_PATH, const.FEATURE_IMPORTANCE_PLOT))
+            plt.close()
+            
+            # ROC Curves
+            plt.figure(figsize=const.PLT_FIGURE_SIZE)
+            # Replace inf values with nan
+            X_test_clean = self.X_test.replace([np.inf, -np.inf], np.nan)
+            
+            lrc_plot = RocCurveDisplay.from_estimator(
+                self.lr_model, 
+                X_test_clean, 
+                self.y_test,
+                name="Logistic Regression"
+            )
+            plt.title("ROC Curve - Logistic Regression")
+            plt.savefig(os.path.join(const.RESULTS_IMAGES_PATH, const.LRC_ROC_CURVE))
+            plt.close()
+            
+            # Combined ROC Curves
+            fig, ax = plt.subplots(figsize=const.PLT_FIGURE_SIZE)
+            RocCurveDisplay.from_estimator(
+                self.rfc_model, 
+                X_test_clean, 
+                self.y_test,
+                name="Random Forest",
+                ax=ax
+            )
+            RocCurveDisplay.from_estimator(
+                self.lr_model,
+                X_test_clean,
+                self.y_test,
+                name="Logistic Regression",
+                ax=ax
+            )
+            plt.title("ROC Curve Comparison")
+            plt.savefig(os.path.join(const.RESULTS_IMAGES_PATH, const.ROC_CURVES_COMPARISON))
+            plt.close()
+            
+            logging.info("Model reports created successfully")
+            return True
+            
+        except Exception as err:
+            logging.error("Creating model reports failed: %s", str(err))
+            return False
+
 
 if __name__ == "__main__":
+    # Create and run the churn prediction pipeline
     predictor = ChurnPredictor()
+    
+    # Execute pipeline steps
     if predictor.import_data():
         predictor.perform_eda()
         predictor.encoder_helper()
